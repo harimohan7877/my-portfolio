@@ -2,10 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { PortfolioData } from "./types";
-import { defaultData } from "./data";
+import { defaultData, defaultDataHI } from "./data";
 
 interface DataContextType {
   data: PortfolioData;
+  language: "en" | "hi";
+  setLanguage: (lang: "en" | "hi") => void;
   updateData: (newData: PortfolioData) => void;
   updateSection: <K extends keyof PortfolioData>(key: K, value: PortfolioData[K]) => void;
   resetToDefault: () => void;
@@ -15,34 +17,61 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const STORAGE_KEY = "portfolio_data";
-
 export function DataProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<"en" | "hi">("en");
   const [data, setData] = useState<PortfolioData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Initialize language and data on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const savedLang = localStorage.getItem("portfolio_lang") as "en" | "hi";
+      const activeLang = (savedLang === "hi" || savedLang === "en") ? savedLang : "en";
+      setLanguageState(activeLang);
+
+      const key = `portfolio_data_${activeLang}`;
+      const defaults = activeLang === "en" ? defaultData : defaultDataHI;
+      const stored = localStorage.getItem(key);
+
       if (stored) {
-        const parsed = JSON.parse(stored) as PortfolioData;
-        setData({ ...defaultData, ...parsed });
+        setData({ ...defaults, ...JSON.parse(stored) });
+      } else {
+        setData(defaults);
       }
     } catch {
-      // If localStorage fails, use defaults
+      setData(defaultData);
     }
     setIsLoaded(true);
   }, []);
 
+  // Save changes to the active language storage key
   useEffect(() => {
     if (isLoaded) {
+      const key = `portfolio_data_${language}`;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(key, JSON.stringify(data));
       } catch {
-        // Storage full or unavailable
+        // Storage issues
       }
     }
-  }, [data, isLoaded]);
+  }, [data, language, isLoaded]);
+
+  const setLanguage = useCallback((lang: "en" | "hi") => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem("portfolio_lang", lang);
+      const key = `portfolio_data_${lang}`;
+      const defaults = lang === "en" ? defaultData : defaultDataHI;
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        setData({ ...defaults, ...JSON.parse(stored) });
+      } else {
+        setData(defaults);
+      }
+    } catch {
+      // Fallback
+    }
+  }, []);
 
   const updateData = useCallback((newData: PortfolioData) => {
     setData(newData);
@@ -53,9 +82,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetToDefault = useCallback(() => {
-    setData(defaultData);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
+    const defaults = language === "en" ? defaultData : defaultDataHI;
+    setData(defaults);
+    try {
+      localStorage.removeItem(`portfolio_data_${language}`);
+    } catch {
+      // Ignore
+    }
+  }, [language]);
 
   const exportData = useCallback(() => {
     return JSON.stringify(data, null, 2);
@@ -64,15 +98,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const importData = useCallback((json: string): boolean => {
     try {
       const parsed = JSON.parse(json) as PortfolioData;
-      setData({ ...defaultData, ...parsed });
+      const defaults = language === "en" ? defaultData : defaultDataHI;
+      setData({ ...defaults, ...parsed });
       return true;
     } catch {
       return false;
     }
-  }, []);
+  }, [language]);
 
   return (
-    <DataContext.Provider value={{ data, updateData, updateSection, resetToDefault, exportData, importData }}>
+    <DataContext.Provider value={{ data, language, setLanguage, updateData, updateSection, resetToDefault, exportData, importData }}>
       {children}
     </DataContext.Provider>
   );

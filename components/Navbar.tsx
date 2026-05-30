@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
 import { usePortfolioData } from "@/lib/DataContext";
 
 export default function Navbar() {
-  const { data } = usePortfolioData();
+  const { data, language, setLanguage } = usePortfolioData();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("#home");
@@ -150,6 +150,16 @@ export default function Navbar() {
               <span>Available for Work</span>
             </div>
 
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white/70 hover:border-accent-purple hover:bg-slate-50 transition text-xs font-semibold text-text-secondary hover:text-text-primary shadow-sm shrink-0"
+              aria-label="Toggle Language / भाषा बदलें"
+            >
+              <Globe size={14} className="text-accent-purple" />
+              <span>{language === "en" ? "EN" : "हिं"}</span>
+            </button>
+
             {/* Hire Me button */}
             <a
               href="#contact"
@@ -244,6 +254,17 @@ export default function Navbar() {
                     {link.label}
                   </motion.a>
                 ))}
+              </div>
+
+              {/* Mobile Language Toggle */}
+              <div className="px-4 mt-auto mb-3">
+                <button
+                  onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition text-xs font-semibold text-text-secondary shadow-sm"
+                >
+                  <Globe size={14} className="text-accent-purple" />
+                  <span>{language === "en" ? "भाषा बदलें (हिन्दी)" : "Switch to English"}</span>
+                </button>
               </div>
 
               {/* Mobile available badge */}
