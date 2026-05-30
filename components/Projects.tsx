@@ -86,13 +86,25 @@ export default function Projects() {
               >
                 {/* Image Area */}
                 <div
-                  className="h-40 rounded-xl mb-4 flex items-center justify-center"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(59,130,246,0.1) 50%, rgba(6,182,212,0.08) 100%)",
-                  }}
+                  className="h-40 rounded-xl mb-4 flex items-center justify-center overflow-hidden border border-border"
                 >
-                  {getProjectIcon(project)}
+                  {project.imageUrl ? (
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(59,130,246,0.1) 50%, rgba(6,182,212,0.08) 100%)",
+                      }}
+                    >
+                      {getProjectIcon(project)}
+                    </div>
+                  )}
                 </div>
 
                 {/* Status Badge */}

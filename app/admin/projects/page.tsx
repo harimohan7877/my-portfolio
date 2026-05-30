@@ -24,6 +24,7 @@ const emptyProject: Project = {
   techStack: [],
   category: "Websites",
   link: { text: "", href: "" },
+  imageUrl: "",
 };
 
 export default function ProjectsEditor() {
@@ -295,6 +296,21 @@ export default function ProjectsEditor() {
                   placeholder="https://example.com"
                 />
               </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                Project Image URL (Optional)
+              </label>
+              <input
+                type="text"
+                value={form.imageUrl || ""}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, imageUrl: e.target.value }))
+                }
+                className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-text-primary text-sm outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple/30 w-full transition"
+                placeholder="e.g., /projects/aasha.png or https://example.com/screenshot.png"
+              />
             </div>
 
             <div className="flex items-center gap-3">

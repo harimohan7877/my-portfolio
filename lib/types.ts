@@ -43,6 +43,7 @@ export interface Project {
   techStack: string[];
   category: "Websites" | "Content" | "Automation";
   link: { text: string; href: string };
+  imageUrl?: string;
 }
 
 export interface SkillCategory {
