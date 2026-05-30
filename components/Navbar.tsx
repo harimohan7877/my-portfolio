@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Globe } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { usePortfolioData } from "@/lib/DataContext";
 
 export default function Navbar() {
-  const { data, language, setLanguage } = usePortfolioData();
+  const { data, theme, toggleTheme } = usePortfolioData();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("#home");
@@ -75,11 +75,11 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300 ${
-          scrolled ? "shadow-md shadow-slate-200/50 border-b border-slate-200/40" : "border-b border-slate-200/20"
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center transition-all duration-300"
         style={{
-          background: "rgba(248, 250, 252, 0.8)",
+          background: "var(--bg-navbar)",
+          borderBottom: scrolled ? "1px solid var(--border-navbar)" : "1px solid transparent",
+          boxShadow: scrolled ? "0 4px 20px -2px var(--shadow-navbar)" : "none",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
         }}
@@ -150,14 +150,17 @@ export default function Navbar() {
               <span>Available for Work</span>
             </div>
 
-            {/* Language Toggle */}
+            {/* Theme Toggle */}
             <button
-              onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white/70 hover:border-accent-purple hover:bg-slate-50 transition text-xs font-semibold text-text-secondary hover:text-text-primary shadow-sm shrink-0"
-              aria-label="Toggle Language / भाषा बदलें"
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:border-accent-purple hover:bg-slate-50 dark:hover:bg-white/10 transition text-text-secondary hover:text-text-primary shadow-sm shrink-0"
+              aria-label="Toggle Theme"
             >
-              <Globe size={14} className="text-accent-purple" />
-              <span>{language === "en" ? "EN" : "हिं"}</span>
+              {theme === "light" ? (
+                <Moon size={16} className="text-accent-purple" />
+              ) : (
+                <Sun size={16} className="text-accent-purple" />
+              )}
             </button>
 
             {/* Hire Me button */}
@@ -256,14 +259,23 @@ export default function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile Language Toggle */}
+              {/* Mobile Theme Toggle */}
               <div className="px-4 mt-auto mb-3">
                 <button
-                  onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition text-xs font-semibold text-text-secondary shadow-sm"
+                  onClick={toggleTheme}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition text-xs font-semibold text-text-secondary shadow-sm"
                 >
-                  <Globe size={14} className="text-accent-purple" />
-                  <span>{language === "en" ? "भाषा बदलें (हिन्दी)" : "Switch to English"}</span>
+                  {theme === "light" ? (
+                    <>
+                      <Moon size={14} className="text-accent-purple" />
+                      <span className="text-xs">Switch to Dark Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sun size={14} className="text-accent-purple" />
+                      <span className="text-xs">Switch to Light Mode</span>
+                    </>
+                  )}
                 </button>
               </div>
 

@@ -2,12 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { PortfolioData } from "./types";
-import { defaultData, defaultDataHI } from "./data";
+import { defaultData } from "./data";
 
 interface DataContextType {
   data: PortfolioData;
-  language: "en" | "hi";
-  setLanguage: (lang: "en" | "hi") => void;
+  theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
+  toggleTheme: () => void;
   updateData: (newData: PortfolioData) => void;
   updateSection: <K extends keyof PortfolioData>(key: K, value: PortfolioData[K]) => void;
   resetToDefault: () => void;
@@ -18,25 +19,29 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<"en" | "hi">("en");
+  const [theme, setThemeState] = useState<"light" | "dark">("light");
   const [data, setData] = useState<PortfolioData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize language and data on mount
+  // Initialize theme and data on mount
   useEffect(() => {
     try {
-      const savedLang = localStorage.getItem("portfolio_lang") as "en" | "hi";
-      const activeLang = (savedLang === "hi" || savedLang === "en") ? savedLang : "en";
-      setLanguageState(activeLang);
+      // 1. Initial theme resolution
+      const savedTheme = localStorage.getItem("portfolio_theme") as "light" | "dark";
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const activeTheme = (savedTheme === "light" || savedTheme === "dark") ? savedTheme : systemTheme;
+      setThemeState(activeTheme);
+      document.body.classList.toggle("dark", activeTheme === "dark");
 
-      const key = `portfolio_data_${activeLang}`;
-      const defaults = activeLang === "en" ? defaultData : defaultDataHI;
-      const stored = localStorage.getItem(key);
+      // 2. Initial data resolution (migrate from portfolio_data_en if portfolio_data is missing)
+      const key = "portfolio_data";
+      const fallbackKey = "portfolio_data_en";
+      const stored = localStorage.getItem(key) || localStorage.getItem(fallbackKey);
 
       if (stored) {
-        setData({ ...defaults, ...JSON.parse(stored) });
+        setData({ ...defaultData, ...JSON.parse(stored) });
       } else {
-        setData(defaults);
+        setData(defaultData);
       }
     } catch {
       setData(defaultData);
@@ -44,34 +49,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setIsLoaded(true);
   }, []);
 
-  // Save changes to the active language storage key
+  // Save changes to active portfolio data key
   useEffect(() => {
     if (isLoaded) {
-      const key = `portfolio_data_${language}`;
       try {
-        localStorage.setItem(key, JSON.stringify(data));
+        localStorage.setItem("portfolio_data", JSON.stringify(data));
       } catch {
         // Storage issues
       }
     }
-  }, [data, language, isLoaded]);
+  }, [data, isLoaded]);
 
-  const setLanguage = useCallback((lang: "en" | "hi") => {
-    setLanguageState(lang);
+  const setTheme = useCallback((newTheme: "light" | "dark") => {
+    setThemeState(newTheme);
     try {
-      localStorage.setItem("portfolio_lang", lang);
-      const key = `portfolio_data_${lang}`;
-      const defaults = lang === "en" ? defaultData : defaultDataHI;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        setData({ ...defaults, ...JSON.parse(stored) });
-      } else {
-        setData(defaults);
-      }
+      localStorage.setItem("portfolio_theme", newTheme);
+      document.body.classList.toggle("dark", newTheme === "dark");
     } catch {
       // Fallback
     }
   }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === "light" ? "dark" : "light");
+  }, [theme, setTheme]);
 
   const updateData = useCallback((newData: PortfolioData) => {
     setData(newData);
@@ -82,14 +83,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetToDefault = useCallback(() => {
-    const defaults = language === "en" ? defaultData : defaultDataHI;
-    setData(defaults);
+    setData(defaultData);
     try {
-      localStorage.removeItem(`portfolio_data_${language}`);
+      localStorage.removeItem("portfolio_data");
     } catch {
       // Ignore
     }
-  }, [language]);
+  }, []);
 
   const exportData = useCallback(() => {
     return JSON.stringify(data, null, 2);
@@ -98,16 +98,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const importData = useCallback((json: string): boolean => {
     try {
       const parsed = JSON.parse(json) as PortfolioData;
-      const defaults = language === "en" ? defaultData : defaultDataHI;
-      setData({ ...defaults, ...parsed });
+      setData({ ...defaultData, ...parsed });
       return true;
     } catch {
       return false;
     }
-  }, [language]);
+  }, []);
 
   return (
-    <DataContext.Provider value={{ data, language, setLanguage, updateData, updateSection, resetToDefault, exportData, importData }}>
+    <DataContext.Provider value={{ data, theme, setTheme, toggleTheme, updateData, updateSection, resetToDefault, exportData, importData }}>
       {children}
     </DataContext.Provider>
   );

@@ -17,6 +17,7 @@ const config: Config = {
         "text-primary": "var(--text-primary)",
         "text-secondary": "var(--text-secondary)",
         "text-muted": "var(--text-muted)",
+        "border": "var(--border)",
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],
