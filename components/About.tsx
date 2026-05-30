@@ -11,7 +11,7 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function About() {
-  const { data } = usePortfolioData();
+  const { data, theme } = usePortfolioData();
 
   return (
     <section id="about" className="py-24">
@@ -66,14 +66,22 @@ export default function About() {
                 I work with:
               </h3>
               <div className="flex flex-wrap gap-2">
-                {data.about.tools.map((tool) => (
-                  <span
-                    key={tool.name}
-                    className="px-3 py-1 rounded-full text-xs font-semibold border border-slate-200/80 bg-slate-50 text-text-secondary shadow-sm hover:border-accent-purple/30 transition-all duration-200"
-                  >
-                    {tool.name}
-                  </span>
-                ))}
+                {data.about.tools.map((tool) => {
+                  const isWhite = tool.color.toUpperCase() === "#FFFFFF" || tool.color.toUpperCase() === "#FFF";
+                  const activeColor = isWhite && theme === "light" ? "#0F172A" : tool.color;
+                  return (
+                    <span
+                      key={tool.name}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border border-border bg-bg-secondary/30 text-text-secondary shadow-sm hover:text-text-primary hover:border-accent-purple/40 transition-all duration-300"
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: activeColor }}
+                      />
+                      <span>{tool.name}</span>
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </motion.div>

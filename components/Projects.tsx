@@ -61,7 +61,7 @@ export default function Projects() {
               className={`rounded-full px-5 py-2 text-sm transition-all duration-300 ${
                 activeFilter === tab
                   ? "btn-gradient"
-                  : "border border-slate-200 text-text-secondary hover:text-text-primary hover:border-slate-300"
+                  : "border border-border text-text-secondary hover:text-text-primary hover:border-accent-purple/40"
               }`}
             >
               {tab}
@@ -121,7 +121,7 @@ export default function Projects() {
                   {project.techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="text-xs px-2 py-1 rounded-full bg-slate-100 text-text-secondary font-medium border border-slate-200/40"
+                      className="text-xs px-2 py-1 rounded-full bg-bg-secondary/40 text-text-secondary font-medium border border-border"
                     >
                       {tech}
                     </span>

@@ -153,7 +153,7 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:border-accent-purple hover:bg-slate-50 dark:hover:bg-white/10 transition text-text-secondary hover:text-text-primary shadow-sm shrink-0"
+              className="flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-bg-secondary/40 hover:border-accent-purple hover:bg-bg-secondary transition text-text-secondary hover:text-text-primary shadow-sm shrink-0"
               aria-label="Toggle Theme"
             >
               {theme === "light" ? (
@@ -263,7 +263,7 @@ export default function Navbar() {
               <div className="px-4 mt-auto mb-3">
                 <button
                   onClick={toggleTheme}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition text-xs font-semibold text-text-secondary shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border border-border bg-bg-secondary/40 hover:border-accent-purple hover:bg-bg-secondary transition text-xs font-semibold text-text-secondary shadow-sm"
                 >
                   {theme === "light" ? (
                     <>
