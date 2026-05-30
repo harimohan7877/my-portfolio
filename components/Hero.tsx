@@ -79,109 +79,242 @@ export default function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-6 max-w-4xl mx-auto px-4">
-        {/* Badge */}
-        <motion.div {...fadeUp(0.5)}>
-          <span
-            className="inline-block rounded-full px-4 py-2 text-sm"
-            style={{
-              background: "rgba(124,58,237,0.1)",
-              border: "1px solid rgba(124,58,237,0.3)",
-              color: "#A78BFA",
-            }}
-          >
-            {data.hero.badge}
-          </span>
-        </motion.div>
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 py-20">
+        {data.hero.imageUrl ? (
+          <div className="grid md:grid-cols-12 gap-12 items-center text-left">
+            {/* Left Column - Text */}
+            <div className="md:col-span-7 flex flex-col gap-6 items-start">
+              {/* Badge */}
+              <motion.div {...fadeUp(0.5)}>
+                <span
+                  className="inline-block rounded-full px-4 py-2 text-sm"
+                  style={{
+                    background: "rgba(124,58,237,0.1)",
+                    border: "1px solid rgba(124,58,237,0.3)",
+                    color: "#A78BFA",
+                  }}
+                >
+                  {data.hero.badge}
+                </span>
+              </motion.div>
 
-        {/* Name */}
-        <motion.h1
-          {...fadeUp(0.7)}
-          className="gradient-text font-bold leading-tight"
-          style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
-        >
-          {data.hero.name}
-        </motion.h1>
+              {/* Name */}
+              <motion.h1
+                {...fadeUp(0.7)}
+                className="gradient-text font-bold leading-tight"
+                style={{ fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)" }}
+              >
+                {data.hero.name}
+              </motion.h1>
 
-        {/* Rotating title */}
-        <motion.div
-          {...fadeUp(0.9)}
-          className="h-10 flex items-center justify-center overflow-hidden"
-        >
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={titleIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-xl md:text-2xl font-medium text-text-secondary"
-            >
-              {data.hero.rotatingTitles[titleIndex]}
-            </motion.span>
-          </AnimatePresence>
-        </motion.div>
+              {/* Rotating title */}
+              <motion.div
+                {...fadeUp(0.9)}
+                className="h-10 flex items-center overflow-hidden"
+              >
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={titleIndex}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="text-xl md:text-2xl font-medium text-text-secondary text-left"
+                  >
+                    {data.hero.rotatingTitles[titleIndex]}
+                  </motion.span>
+                </AnimatePresence>
+              </motion.div>
 
-        {/* Tagline */}
-        <motion.p
-          {...fadeUp(1.1)}
-          className="text-text-secondary max-w-2xl whitespace-pre-line"
-        >
-          {data.hero.tagline}
-        </motion.p>
+              {/* Tagline */}
+              <motion.p
+                {...fadeUp(1.1)}
+                className="text-text-secondary max-w-2xl whitespace-pre-line text-left"
+              >
+                {data.hero.tagline}
+              </motion.p>
 
-        {/* Stats Row */}
-        <motion.div
-          {...fadeUp(1.3)}
-          className="flex gap-4 md:gap-8"
-        >
-          {data.hero.stats.map((stat) => (
-            <div key={stat.label} className="border-t-2 border-accent-purple pt-3 text-center">
-              <div className="font-bold text-2xl text-text-primary">{stat.value}</div>
-              <div className="text-sm text-text-secondary">{stat.label}</div>
+              {/* Stats Row */}
+              <motion.div
+                {...fadeUp(1.3)}
+                className="flex gap-4 md:gap-8 justify-start w-full"
+              >
+                {data.hero.stats.map((stat) => (
+                  <div key={stat.label} className="border-t-2 border-accent-purple pt-3 text-left min-w-[80px]">
+                    <div className="font-bold text-2xl text-text-primary">{stat.value}</div>
+                    <div className="text-sm text-text-secondary">{stat.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* CTA Row */}
+              <motion.div {...fadeUp(1.5)} className="flex gap-4 flex-wrap justify-start">
+                <a
+                  href={data.hero.ctaPrimary.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.querySelector(data.hero.ctaPrimary.href);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="btn-gradient rounded-xl px-8 py-3.5 text-base"
+                >
+                  {data.hero.ctaPrimary.text}
+                </a>
+                <a
+                  href={data.hero.ctaSecondary.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline rounded-xl px-8 py-3.5 flex items-center gap-2 text-base"
+                >
+                  <WhatsAppIcon size={18} />
+                  {data.hero.ctaSecondary.text}
+                </a>
+              </motion.div>
+
+              {/* Social Links Row */}
+              <motion.div {...fadeUp(1.7)} className="flex gap-5 mt-2">
+                {data.socialLinks.map((link) => (
+                  <a
+                    key={link.platform}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="text-text-muted hover:text-accent-purple transition-colors duration-300"
+                  >
+                    {getSocialIcon(link.platform)}
+                  </a>
+                ))}
+              </motion.div>
             </div>
-          ))}
-        </motion.div>
 
-        {/* CTA Row */}
-        <motion.div {...fadeUp(1.5)} className="flex gap-4 flex-wrap justify-center">
-          <a
-            href={data.hero.ctaPrimary.href}
-            onClick={(e) => {
-              e.preventDefault();
-              const el = document.querySelector(data.hero.ctaPrimary.href);
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="btn-gradient rounded-xl px-8 py-3.5 text-base"
-          >
-            {data.hero.ctaPrimary.text}
-          </a>
-          <a
-            href={data.hero.ctaSecondary.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline rounded-xl px-8 py-3.5 flex items-center gap-2 text-base"
-          >
-            <WhatsAppIcon size={18} />
-            {data.hero.ctaSecondary.text}
-          </a>
-        </motion.div>
+            {/* Right Column - Image */}
+            <div className="md:col-span-5 flex justify-center w-full">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.5 }}
+                className="relative group w-72 h-72 sm:w-80 sm:h-80 md:w-80 md:h-80 lg:w-96 lg:h-96"
+              >
+                {/* Glow border effect */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-accent-purple to-accent-blue rounded-3xl blur-[15px] opacity-35 group-hover:opacity-60 transition duration-500" />
+                <div className="relative w-full h-full rounded-3xl overflow-hidden border border-border bg-bg-secondary/50 shadow-lg">
+                  <img
+                    src={data.hero.imageUrl}
+                    alt={data.hero.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-6 max-w-4xl mx-auto text-center">
+            {/* Badge */}
+            <motion.div {...fadeUp(0.5)}>
+              <span
+                className="inline-block rounded-full px-4 py-2 text-sm"
+                style={{
+                  background: "rgba(124,58,237,0.1)",
+                  border: "1px solid rgba(124,58,237,0.3)",
+                  color: "#A78BFA",
+                }}
+              >
+                {data.hero.badge}
+              </span>
+            </motion.div>
 
-        {/* Social Links Row */}
-        <motion.div {...fadeUp(1.7)} className="flex gap-5">
-          {data.socialLinks.map((link) => (
-            <a
-              key={link.platform}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              className="text-text-muted hover:text-accent-purple transition-colors duration-300"
+            {/* Name */}
+            <motion.h1
+              {...fadeUp(0.7)}
+              className="gradient-text font-bold leading-tight"
+              style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
             >
-              {getSocialIcon(link.platform)}
-            </a>
-          ))}
-        </motion.div>
+              {data.hero.name}
+            </motion.h1>
+
+            {/* Rotating title */}
+            <motion.div
+              {...fadeUp(0.9)}
+              className="h-10 flex items-center justify-center overflow-hidden"
+            >
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={titleIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="text-xl md:text-2xl font-medium text-text-secondary"
+                >
+                  {data.hero.rotatingTitles[titleIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Tagline */}
+            <motion.p
+              {...fadeUp(1.1)}
+              className="text-text-secondary max-w-2xl whitespace-pre-line"
+            >
+              {data.hero.tagline}
+            </motion.p>
+
+            {/* Stats Row */}
+            <motion.div
+              {...fadeUp(1.3)}
+              className="flex gap-4 md:gap-8"
+            >
+              {data.hero.stats.map((stat) => (
+                <div key={stat.label} className="border-t-2 border-accent-purple pt-3 text-center">
+                  <div className="font-bold text-2xl text-text-primary">{stat.value}</div>
+                  <div className="text-sm text-text-secondary">{stat.label}</div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* CTA Row */}
+            <motion.div {...fadeUp(1.5)} className="flex gap-4 flex-wrap justify-center">
+              <a
+                href={data.hero.ctaPrimary.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.querySelector(data.hero.ctaPrimary.href);
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="btn-gradient rounded-xl px-8 py-3.5 text-base"
+              >
+                {data.hero.ctaPrimary.text}
+              </a>
+              <a
+                href={data.hero.ctaSecondary.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline rounded-xl px-8 py-3.5 flex items-center gap-2 text-base"
+              >
+                <WhatsAppIcon size={18} />
+                {data.hero.ctaSecondary.text}
+              </a>
+            </motion.div>
+
+            {/* Social Links Row */}
+            <motion.div {...fadeUp(1.7)} className="flex gap-5">
+              {data.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  className="text-text-muted hover:text-accent-purple transition-colors duration-300"
+                >
+                  {getSocialIcon(link.platform)}
+                </a>
+              ))}
+            </motion.div>
+          </div>
+        )}
       </div>
     </section>
   );

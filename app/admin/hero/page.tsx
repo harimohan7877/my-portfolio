@@ -102,6 +102,90 @@ export default function HeroEditor() {
           />
         </div>
 
+        {/* Profile Image (Optional) */}
+        <div className="glass-card p-6">
+          <label className="text-sm font-medium text-text-secondary mb-3 block">
+            Hero Profile Image (Optional)
+          </label>
+          <div className="flex flex-col md:flex-row gap-6 items-center">
+            {form.imageUrl && (
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-white/10 shrink-0">
+                <img
+                  src={form.imageUrl}
+                  alt="Hero Preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => updateField("imageUrl", "")}
+                  className="absolute inset-0 bg-black/60 flex items-center justify-center text-red-400 opacity-0 hover:opacity-100 transition-opacity text-xs font-semibold"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+            <div className="flex-1 w-full space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_WIDTH = 600;
+                        if (width > MAX_WIDTH) {
+                          height = Math.round((height * MAX_WIDTH) / width);
+                          width = MAX_WIDTH;
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        if (ctx) {
+                          ctx.drawImage(img, 0, 0, width, height);
+                          updateField("imageUrl", canvas.toDataURL("image/jpeg", 0.7));
+                        }
+                      };
+                      img.src = event.target?.result as string;
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  className="hidden"
+                  id="hero-file-upload"
+                />
+                <label
+                  htmlFor="hero-file-upload"
+                  className="cursor-pointer bg-white/5 border border-white/10 hover:border-accent-purple hover:bg-white/10 rounded-lg px-4 py-2.5 text-text-primary text-sm font-semibold transition inline-flex items-center justify-center gap-2 text-center"
+                >
+                  Upload Profile Pic
+                </label>
+                {form.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => updateField("imageUrl", "")}
+                    className="bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 rounded-lg px-4 py-2.5 text-sm transition font-semibold"
+                  >
+                    Remove Image
+                  </button>
+                )}
+              </div>
+              <input
+                type="text"
+                value={form.imageUrl || ""}
+                onChange={(e) => updateField("imageUrl", e.target.value)}
+                placeholder="Or paste an image URL (e.g. /my-pic.jpg)"
+                className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-text-primary text-sm outline-none focus:border-accent-purple focus:ring-1 focus:ring-accent-purple/30 w-full transition"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Rotating Titles */}
         <div className="glass-card p-6">
           <label className="text-sm font-medium text-text-secondary mb-3 block">

@@ -15,6 +15,7 @@ export interface HeroData {
   stats: { value: string; label: string }[];
   ctaPrimary: { text: string; href: string };
   ctaSecondary: { text: string; href: string };
+  imageUrl?: string;
 }
 
 export interface AboutData {
