@@ -2,8 +2,18 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { defaultData } from "@/lib/data";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Clean up trailing /rest/v1/ or /rest/v1 if user accidentally copied it
+if (supabaseUrl) {
+  supabaseUrl = supabaseUrl.trim();
+  if (supabaseUrl.endsWith("/rest/v1/")) {
+    supabaseUrl = supabaseUrl.slice(0, -9);
+  } else if (supabaseUrl.endsWith("/rest/v1")) {
+    supabaseUrl = supabaseUrl.slice(0, -8);
+  }
+}
 
 // Initialize Supabase Client if variables are configured
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
