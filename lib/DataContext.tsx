@@ -7,6 +7,7 @@ import { defaultData } from "./data";
 interface DataContextType {
   data: PortfolioData;
   theme: "light" | "dark";
+  isDbConnected: boolean;
   setTheme: (theme: "light" | "dark") => void;
   toggleTheme: () => void;
   updateData: (newData: PortfolioData) => void;
@@ -22,34 +23,57 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<"light" | "dark">("light");
   const [data, setData] = useState<PortfolioData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDbConnected, setIsDbConnected] = useState(false);
 
-  // Initialize theme and data on mount
+  // Initialize theme and load data from DB or local storage on mount
   useEffect(() => {
+    // 1. Initial theme resolution
     try {
-      // 1. Initial theme resolution
       const savedTheme = localStorage.getItem("portfolio_theme") as "light" | "dark";
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       const activeTheme = (savedTheme === "light" || savedTheme === "dark") ? savedTheme : systemTheme;
       setThemeState(activeTheme);
       document.body.classList.toggle("dark", activeTheme === "dark");
+    } catch {}
 
-      // 2. Initial data resolution (migrate from portfolio_data_en if portfolio_data is missing)
-      const key = "portfolio_data";
-      const fallbackKey = "portfolio_data_en";
-      const stored = localStorage.getItem(key) || localStorage.getItem(fallbackKey);
+    // 2. Fetch data from Next.js backend API
+    async function loadPortfolioData() {
+      try {
+        const res = await fetch("/api/portfolio");
+        if (res.ok) {
+          const result = await res.json();
+          if (result.success && result.db_connected) {
+            setData(result.data);
+            setIsDbConnected(true);
+            setIsLoaded(true);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Database connection failed, falling back to local storage:", err);
+      }
 
-      if (stored) {
-        setData({ ...defaultData, ...JSON.parse(stored) });
-      } else {
+      // Local storage fallback if DB is not configured or fails
+      try {
+        const key = "portfolio_data";
+        const fallbackKey = "portfolio_data_en";
+        const stored = localStorage.getItem(key) || localStorage.getItem(fallbackKey);
+        if (stored) {
+          setData({ ...defaultData, ...JSON.parse(stored) });
+        } else {
+          setData(defaultData);
+        }
+      } catch {
         setData(defaultData);
       }
-    } catch {
-      setData(defaultData);
+      setIsDbConnected(false);
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
+
+    loadPortfolioData();
   }, []);
 
-  // Save changes to active portfolio data key
+  // Save changes locally to localStorage for offline cache safety
   useEffect(() => {
     if (isLoaded) {
       try {
@@ -59,6 +83,33 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [data, isLoaded]);
+
+  // Synchronize changes to Supabase database (debounced 500ms to batch rapid saves)
+  useEffect(() => {
+    if (isLoaded && isDbConnected) {
+      const syncData = async () => {
+        try {
+          const authPassword = sessionStorage.getItem("admin_password") || "";
+          const res = await fetch("/api/portfolio", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": authPassword,
+            },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) {
+            console.error("Failed to sync data with database");
+          }
+        } catch (err) {
+          console.error("Error syncing with database:", err);
+        }
+      };
+
+      const timeoutId = setTimeout(syncData, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [data, isLoaded, isDbConnected]);
 
   const setTheme = useCallback((newTheme: "light" | "dark") => {
     setThemeState(newTheme);
@@ -106,7 +157,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ data, theme, setTheme, toggleTheme, updateData, updateSection, resetToDefault, exportData, importData }}>
+    <DataContext.Provider value={{ data, theme, isDbConnected, setTheme, toggleTheme, updateData, updateSection, resetToDefault, exportData, importData }}>
       {children}
     </DataContext.Provider>
   );

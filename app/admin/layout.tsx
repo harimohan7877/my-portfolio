@@ -68,6 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "harimohan787799";
     if (password === correctPassword) {
       sessionStorage.setItem("admin_auth", "true");
+      sessionStorage.setItem("admin_password", password);
       setIsAuthenticated(true);
       setError("");
     } else {
